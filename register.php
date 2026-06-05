@@ -7,40 +7,45 @@ if(isset($_POST['register'])){
     $name = $_POST['name'];
     $email = $_POST['email'];
 
-    $password = password_hash(
-        $_POST['password'],
-        PASSWORD_DEFAULT
-    );
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
 
     $role = $_POST['role'];
 
-    $image = $_FILES['image']['name'];
-    $tmp_name = $_FILES['image']['tmp_name'];
-
-    move_uploaded_file(
-        $tmp_name,
-        "uploads/".$image
-    );
-
-    $sql = "INSERT INTO users
-    (name,email,password,role,image)
-
-    VALUES
-
-    ('$name','$email','$password','$role','$image')";
-
-    if(mysqli_query($conn,$sql)){
+    if($password != $confirm_password){
 
         echo "<script>
-        alert('Registration Successful');
-        window.location='login.php';
+        alert('Passwords do not match');
         </script>";
 
     }else{
 
-        echo "<script>
-        alert('Registration Failed');
-        </script>";
+        $hashed_password = password_hash(
+            $password,
+            PASSWORD_DEFAULT
+        );
+
+        $sql = "INSERT INTO users
+        (name,email,password,role)
+
+        VALUES
+
+        ('$name','$email','$hashed_password','$role')";
+
+        if(mysqli_query($conn,$sql)){
+
+            echo "<script>
+            alert('Registration Successful');
+            window.location='login.php';
+            </script>";
+
+        }else{
+
+            echo "<script>
+            alert('Registration Failed');
+            </script>";
+
+        }
 
     }
 
@@ -49,102 +54,145 @@ if(isset($_POST['register'])){
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-    <title>User Registration</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
+<title>User Registration</title>
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        body{
+<style>
 
-            background:
-            linear-gradient(
-            135deg,
-            #1e3a8a,
-            #7c3aed
-            );
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
 
-            min-height:100vh;
+body{
 
-            display:flex;
-            justify-content:center;
-            align-items:center;
-        }
+    min-height:100vh;
 
-        .form-box{
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
-            background:white;
+    background:
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #7c3aed
+    );
 
-            width:400px;
+}
 
-            padding:30px;
+.form-box{
 
-            border-radius:15px;
+    width:420px;
 
-            box-shadow:
-            0px 5px 20px rgba(0,0,0,0.2);
+    background:white;
 
-        }
+    padding:35px;
 
-        h2{
+    border-radius:20px;
 
-            text-align:center;
+    box-shadow:
+    0 15px 35px rgba(0,0,0,0.2);
 
-            margin-bottom:20px;
+}
 
-        }
+h2{
 
-        input,
-        select{
+    text-align:center;
 
-            width:100%;
+    margin-bottom:25px;
 
-            padding:12px;
+    color:#111827;
 
-            margin-bottom:15px;
+}
 
-            border:1px solid #ccc;
+input,
+select{
 
-            border-radius:8px;
+    width:100%;
 
-        }
+    padding:13px;
 
-        button{
+    margin-bottom:15px;
 
-            width:100%;
+    border:2px solid #e5e7eb;
 
-            padding:12px;
+    border-radius:10px;
 
-            background:#1e3a8a;
+    font-size:15px;
 
-            color:white;
+    transition:0.3s;
 
-            border:none;
+}
 
-            border-radius:8px;
+input:focus,
+select:focus{
 
-            cursor:pointer;
+    outline:none;
 
-            font-size:16px;
+    border-color:#2563eb;
 
-        }
+}
 
-        button:hover{
+button{
 
-            background:#4338ca;
+    width:100%;
 
-        }
+    padding:14px;
 
-    </style>
+    border:none;
+
+    border-radius:10px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+}
+
+button:hover{
+
+    background:#1d4ed8;
+
+}
+
+.login-link{
+
+    text-align:center;
+
+    margin-top:15px;
+
+}
+
+.login-link a{
+
+    text-decoration:none;
+
+    color:#2563eb;
+
+    font-weight:600;
+
+}
+
+</style>
 
 </head>
 
@@ -152,52 +200,69 @@ if(isset($_POST['register'])){
 
 <div class="form-box">
 
-    <h2>User Registration</h2>
+<h2>Create Account</h2>
 
-    <form
-    method="POST"
-    enctype="multipart/form-data">
+<form method="POST">
 
-        <input
-        type="text"
-        name="name"
-        placeholder="Enter Name"
-        required>
+<input
+type="text"
+name="name"
+placeholder="Enter Full Name"
+required>
 
-        <input
-        type="email"
-        name="email"
-        placeholder="Enter Email"
-        required>
+<input
+type="email"
+name="email"
+placeholder="Enter Email"
+required>
 
-        <input
-        type="password"
-        name="password"
-        placeholder="Enter Password"
-        required>
+<input
+type="password"
+name="password"
+placeholder="Enter Password"
+required>
 
-        <select name="role">
+<input
+type="password"
+name="confirm_password"
+placeholder="Confirm Password"
+required>
 
-            <option>User</option>
+<select name="role" required>
 
-            <option>Admin</option>
+<option value="">
+Select Role
+</option>
 
-        </select>
+<option value="user">
+User
+</option>
 
-        <input
-        type="file"
-        name="image"
-        required>
+<option value="admin">
+Admin
+</option>
 
-        <button
-        type="submit"
-        name="register">
+</select>
 
-        Register
+<button
+type="submit"
+name="register">
 
-        </button>
+Register
 
-    </form>
+</button>
+
+</form>
+
+<div class="login-link">
+
+Already have an account?
+
+<a href="login.php">
+Login
+</a>
+
+</div>
 
 </div>
 
